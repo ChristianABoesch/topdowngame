@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top-Down Game</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        canvas { background: #eee; display: block; margin: auto; }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <audio id="coinSound" src="audio/coin.wav" preload="auto"></audio> <!-- Add audio element -->
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let player = { x: 400, y: 300, size: 20, speed: 2 }; // Initial player size
+
+        let keys = {};
+        let coins = []; // Array to hold coin objects
+        let coinGrowth = 5; // Amount to grow the player size per coin
+        const coinSound = document.getElementById('coinSound'); // Get the audio element
+
+        // Function to create coins
+        function createCoins(numCoins) {
+            for (let i = 0; i < numCoins; i++) {
+                coins.push({
+                    x: Math.random() * (canvas.width - 20), // Random x position
+                    y: Math.random() * (canvas.height - 20), // Random y position
+                    size: 10 // Coin size
+                });
+            }
+        }
+
+        // Update the update function to increase player size when collecting coins
+        function update() {
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Move player based on key states with boundary checks
+            if (keys['ArrowUp'] && player.y > 0) player.y -= player.speed; // Prevent moving up out of bounds
+            if (keys['ArrowDown'] && player.y < canvas.height - player.size) player.y += player.speed; // Prevent moving down out of bounds
+            if (keys['ArrowLeft'] && player.x > 0) player.x -= player.speed; // Prevent moving left out of bounds
+            if (keys['ArrowRight'] && player.x < canvas.width - player.size) player.x += player.speed; // Prevent moving right out of bounds
+
+            // Draw the player
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(player.x, player.y, player.size, player.size);
+
+            // Draw coins and check for collection
+            ctx.fillStyle = 'gold';
+            coins.forEach((coin, index) => {
+                ctx.fillRect(coin.x, coin.y, coin.size, coin.size);
+                // Check for collision
+                if (player.x < coin.x + coin.size &&
+                    player.x + player.size > coin.x &&
+                    player.y < coin.y + coin.size &&
+                    player.y + player.size > coin.y) {
+                    coins.splice(index, 1); // Remove coin if collected
+                    player.size += coinGrowth; // Increase player size by coinGrowth
+                    coinSound.play(); // Play coin collection sound
+                }
+            });
+
+            // Continue growing the player if no coins are left
+            if (coins.length === 0) {
+                player.size += 0.5; // Increase size faster (changed from 0.1 to 0.5)
+            }
+        }
+
+        function movePlayer() {
+            document.addEventListener('keydown', (event) => {
+                keys[event.key] = true; // Track key down
+            });
+            document.addEventListener('keyup', (event) => {
+                keys[event.key] = false; // Track key up
+            });
+        }
+
+        function gameLoop() {
+            update();
+            requestAnimationFrame(gameLoop);
+        }
+
+        movePlayer();
+        createCoins(10); // Create 10 coins
+        gameLoop();
+    </script>
+</body>
+</html>
