@@ -5,13 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Top-Down Game</title>
     <style>
-        body { margin: 0; overflow: hidden; }
-        canvas { background: #eee; display: block; margin: auto; }
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: gainsboro;
+            /* background-image: url('path/to/your/tile-image.png'); /* Add your tile image path */
+            /* background-repeat: repeat; /* Repeat the background image */
+        }
+        canvas { 
+            background-color: azure; /* Make canvas background transparent */
+            display: block; 
+            margin: auto; 
+        }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
     <audio id="coinSound" src="audio/coin.wav" preload="auto"></audio> <!-- Add audio element -->
+    <audio id="backgroundMusic" src="audio/topdowngame_musicloop1_updated.wav" preload="auto" loop></audio> <!-- Background music element -->
+    <button id="startButton">Start Game</button> <!-- Add start button -->
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -22,6 +34,10 @@
         let coins = []; // Array to hold coin objects
         let coinGrowth = 5; // Amount to grow the player size per coin
         const coinSound = document.getElementById('coinSound'); // Get the audio element
+        const backgroundMusic = document.getElementById('backgroundMusic'); // Get the background music element
+
+        let gameStarted = false; // Track if the game has started
+        let playerSpeed = 1; // Increased speed for smoother movement
 
         // Function to create coins
         function createCoins(numCoins) {
@@ -39,11 +55,7 @@
             // Clear the canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Move player based on key states with boundary checks
-            if (keys['ArrowUp'] && player.y > 0) player.y -= player.speed; // Prevent moving up out of bounds
-            if (keys['ArrowDown'] && player.y < canvas.height - player.size) player.y += player.speed; // Prevent moving down out of bounds
-            if (keys['ArrowLeft'] && player.x > 0) player.x -= player.speed; // Prevent moving left out of bounds
-            if (keys['ArrowRight'] && player.x < canvas.width - player.size) player.x += player.speed; // Prevent moving right out of bounds
+            movePlayer(); // Call movePlayer to update position based on keys
 
             // Draw the player
             ctx.fillStyle = 'blue';
@@ -71,12 +83,13 @@
         }
 
         function movePlayer() {
-            document.addEventListener('keydown', (event) => {
-                keys[event.key] = true; // Track key down
-            });
-            document.addEventListener('keyup', (event) => {
-                keys[event.key] = false; // Track key up
-            });
+            if (!gameStarted) return; // Prevent movement if game hasn't started
+
+            // Example movement logic:
+            if (keys['ArrowUp'] && player.y > 0) player.y -= playerSpeed;
+            if (keys['ArrowDown'] && player.y < canvas.height - player.size) player.y += playerSpeed;
+            if (keys['ArrowLeft'] && player.x > 0) player.x -= playerSpeed;
+            if (keys['ArrowRight'] && player.x < canvas.width - player.size) player.x += playerSpeed;
         }
 
         function gameLoop() {
@@ -84,7 +97,23 @@
             requestAnimationFrame(gameLoop);
         }
 
-        movePlayer();
+        function startGame() {
+            gameStarted = true; // Set game as started
+            backgroundMusic.play(); // Play background music when the start button is pressed
+            gameLoop(); // Start the game loop
+        }
+
+        // Add event listener for the start button
+        document.getElementById('startButton').addEventListener('click', startGame);
+
+        // Add event listener for keydown to track keys
+        document.addEventListener('keydown', (event) => {
+            keys[event.key] = true; // Track key states
+        });
+        document.addEventListener('keyup', (event) => {
+            keys[event.key] = false; // Reset key states
+        });
+
         createCoins(10); // Create 10 coins
         gameLoop();
     </script>
