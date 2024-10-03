@@ -58,7 +58,7 @@
             movePlayer(); // Call movePlayer to update position based on keys
 
             // Draw the player
-            ctx.fillStyle = 'blue';
+            ctx.fillStyle = player.color; // Use the player's color
             ctx.fillRect(player.x, player.y, player.size, player.size);
 
             // Draw coins and check for collection
@@ -72,6 +72,7 @@
                     player.y + player.size > coin.y) {
                     coins.splice(index, 1); // Remove coin if collected
                     player.size += coinGrowth; // Increase player size by coinGrowth
+                    coinSound.currentTime = 0; // Reset sound to start
                     coinSound.play(); // Play coin collection sound
                 }
             });
@@ -79,6 +80,11 @@
             // Continue growing the player if no coins are left
             if (coins.length === 0) {
                 player.size += 0.5; // Increase size faster (changed from 0.1 to 0.5)
+            }
+
+            // Check if player fills the canvas
+            if (player.size >= canvas.width && player.size >= canvas.height) {
+                resetGame(); // Call the reset function
             }
         }
 
@@ -116,6 +122,22 @@
 
         createCoins(10); // Create 10 coins
         gameLoop();
+
+        let totalCoins = 10; // Initialize total coins
+
+        function resetGame() {
+            player.size = 20; // Reset player size
+            player.x = 400; // Reset player x position
+            player.y = 300; // Reset player y position
+            coins = []; // Clear the coins array
+            totalCoins += 5; // Increase total coins by 5
+            createCoins(totalCoins); // Create coins based on totalCoins
+            player.color = '#' + Math.floor(Math.random()*16777215).toString(16); // Set player color to a random color
+            
+            // Change canvas color to player's last color
+            ctx.fillStyle = player.color; // Set fill style to player's color
+            ctx.fillRect(0, 0, canvas.width, canvas.height); // Fill the canvas with the player's color
+        }
     </script>
 </body>
 </html>
