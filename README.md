@@ -13,4 +13,7 @@
 
 ## Future Additions
 - [ ] Add text
+- [ ] Generate and add an image for each coin
+- [ ] Sliders for music and sound
+- [ ] Instructions before starting game
 
