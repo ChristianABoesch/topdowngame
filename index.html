@@ -39,18 +39,38 @@
         let gameStarted = false; // Track if the game has started
         let playerSpeed = 1; // Increased speed for smoother movement
 
+        // Create a new image object for the coin
+        const coinImage = new Image(); // Create a new image object
+        coinImage.src = 'images/coin.jpeg'; // Set the source of the coin image
+
+        // Create a new image object for hazards
+        const hazardImage = new Image(); // Create a new image object for hazards
+        hazardImage.src = 'images/hazard.jpeg'; // Set the source of the hazard image
+        let hazards = []; // Array to hold hazard objects
+
         // Function to create coins
         function createCoins(numCoins) {
             for (let i = 0; i < numCoins; i++) {
                 coins.push({
                     x: Math.random() * (canvas.width - 20), // Random x position
                     y: Math.random() * (canvas.height - 20), // Random y position
-                    size: 10 // Coin size
+                    size: 20 // Coin size
                 });
             }
         }
 
-        // Update the update function to increase player size when collecting coins
+        // Function to create hazards
+        function createHazards(numHazards) {
+            for (let i = 0; i < numHazards; i++) {
+                hazards.push({
+                    x: Math.random() * (canvas.width - 20), // Random x position
+                    y: Math.random() * (canvas.height - 20), // Random y position
+                    size: 20 // Hazard size
+                });
+            }
+        }
+
+        // Update the update function to draw hazards
         function update() {
             // Clear the canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -62,9 +82,8 @@
             ctx.fillRect(player.x, player.y, player.size, player.size);
 
             // Draw coins and check for collection
-            ctx.fillStyle = 'gold';
             coins.forEach((coin, index) => {
-                ctx.fillRect(coin.x, coin.y, coin.size, coin.size);
+                ctx.drawImage(coinImage, coin.x, coin.y, coin.size, coin.size); // Draw the coin image
                 // Check for collision
                 if (player.x < coin.x + coin.size &&
                     player.x + player.size > coin.x &&
@@ -77,8 +96,14 @@
                 }
             });
 
-            // Continue growing the player if no coins are left
+            // Draw hazards
+            hazards.forEach(hazard => {
+                ctx.drawImage(hazardImage, hazard.x, hazard.y, hazard.size, hazard.size); // Draw the hazard image
+            });
+
+            // Clear hazards if all coins are collected
             if (coins.length === 0) {
+                hazards = []; // Clear the hazards array
                 player.size += 0.5; // Increase size faster (changed from 0.1 to 0.5)
             }
 
@@ -106,6 +131,18 @@
         function startGame() {
             gameStarted = true; // Set game as started
             backgroundMusic.play(); // Play background music when the start button is pressed
+            const startButton = document.getElementById('startButton');
+            startButton.style.display = 'none'; // Hide the start button
+
+            // Create a heart element
+            const heart = document.createElement('div');
+            heart.innerHTML = '❤️'; // Use a heart emoji
+            heart.style.position = 'absolute';
+            heart.style.top = startButton.offsetTop + 'px'; // Position it at the same top as the button
+            heart.style.left = startButton.offsetLeft + 'px'; // Position it at the same left as the button
+            heart.style.fontSize = '30px'; // Set the size of the heart
+            document.body.appendChild(heart); // Add the heart to the body
+
             gameLoop(); // Start the game loop
         }
 
@@ -121,17 +158,22 @@
         });
 
         createCoins(10); // Create 10 coins
+        createHazards(2); // Create 2 new hazards
         gameLoop();
 
         let totalCoins = 10; // Initialize total coins
+        let totalHazards = 2; // Initialize total hazards
 
         function resetGame() {
             player.size = 20; // Reset player size
             player.x = 400; // Reset player x position
             player.y = 300; // Reset player y position
             coins = []; // Clear the coins array
+            hazards = []; // Clear the hazards array
             totalCoins += 5; // Increase total coins by 5
+            totalHazards += 2; // Increase total hazards by 2
             createCoins(totalCoins); // Create coins based on totalCoins
+            createHazards(totalHazards); // Create 2 new hazards
             player.color = '#' + Math.floor(Math.random()*16777215).toString(16); // Set player color to a random color
             
             // Change canvas color to player's last color

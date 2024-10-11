@@ -13,7 +13,7 @@
 
 ## Future Additions
 - [ ] Add text
-- [ ] Generate and add an image for each coin
+- [x] Generate and add an image for each coin
 - [ ] Sliders for music and sound
 - [ ] Instructions before starting game
 - [ ] Add hazards in game and generate an image to use for hazards (like a bomb)
